@@ -1,34 +1,33 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+import json
 import requests
 
-app = Flask(__name__)
-CORS(app)
-
-@app.route('/api/download', methods=['POST'])
-def download():
-    data = request.get_json()
-    spotify_url = data.get('url')
-
-    if not spotify_url:
-        return jsonify({'error': 'No Spotify URL provided'}), 400
+def handler(request, response):
+    if request.method != "POST":
+        return response.status(405, "Method Not Allowed")
 
     try:
-        # Extract Spotify info
-        res = requests.get(f"https://open.spotify.com/oembed?url={spotify_url}")
-        embed = res.json()
+        body = request.json()
+        spotify_url = body.get("url")
 
-        title = embed.get("title", "Unknown")
-        thumbnail = embed.get("thumbnail_url", "")
+        if not spotify_url:
+            return response.status(400, "Missing Spotify URL")
+
+        # Extract info from Spotify
+        r = requests.get(f"https://open.spotify.com/oembed?url={spotify_url}")
+        data = r.json()
+
+        title = data.get("title", "Unknown")
+        thumbnail = data.get("thumbnail_url", "")
         artist = "Unknown"
 
         if " - " in title:
             title, artist = title.split(" - ", 1)
 
-        return jsonify({
+        return response.json({
             "title": title.strip(),
             "artist": artist.strip(),
             "thumbnail": thumbnail
         })
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return response.status(500, f"Error: {str(e)}")
