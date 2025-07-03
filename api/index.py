@@ -8,8 +8,8 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-SPOTIFY_CLIENT_ID = os.environ.get("ad0720ec13024b85b3843b39cf06ee16")
-SPOTIFY_CLIENT_SECRET = os.environ.get("f1469bb0f25d40959b903dd5618ea179")
+SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
 
 def get_spotify_token():
     url = "https://accounts.spotify.com/api/token"
@@ -25,8 +25,8 @@ def get_song_query(spotify_url):
     access_token = get_spotify_token()
     headers = {"Authorization": f"Bearer {access_token}"}
     res = requests.get(f"https://api.spotify.com/v1/tracks/{spotify_id}", headers=headers).json()
-    title = res["name"]
-    artist = res["artists"][0]["name"]
+    title = res.get("name", "unknown title")
+    artist = res.get("artists", [{}])[0].get("name", "unknown artist")
     return f"{title} {artist}"
 
 def download_mp3_from_youtube(query):
@@ -35,34 +35,13 @@ def download_mp3_from_youtube(query):
         'format': 'bestaudio/best',
         'quiet': True,
         'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+        'noplaylist': True,
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
-        }],
-        'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None
+        }]
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(f"ytsearch1:{query}", download=True)
-        file_path = ydl.prepare_filename(info["entries"][0]).replace(".webm", ".mp3").replace(".m4a", ".mp3")
-        return file_path
-
-@app.route("/", methods=["GET"])
-def home():
-    return "✅ SpotTool Backend is running on Vercel!"
-
-@app.route("/download", methods=["POST"])
-def download():
-    try:
-        data = request.get_json()
-        spotify_url = data.get("url")
-        if not spotify_url:
-            return jsonify({"error": "Spotify URL missing"}), 400
-
-        query = get_song_query(spotify_url)
-        mp3_path = download_mp3_from_youtube(query)
-        return send_file(mp3_path, as_attachment=True)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
