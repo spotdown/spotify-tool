@@ -1,0 +1,4 @@
+Flask==2.3.3
+yt-dlp==2024.05.27
+requests==2.31.0
+python-dotenv==1.0.1
