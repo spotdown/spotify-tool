@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_CLIENT_ID = os.getenv("ad0720ec13024b85b3843b39cf06ee16")
+SPOTIFY_CLIENT_SECRET = os.getenv("f1469bb0f25d40959b903dd5618ea179")
 
 app = Flask(__name__)
 
