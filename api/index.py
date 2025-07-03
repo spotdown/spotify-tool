@@ -3,11 +3,13 @@ import tempfile
 import yt_dlp
 import requests
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_CLIENT_ID = os.environ.get("ad0720ec13024b85b3843b39cf06ee16")
+SPOTIFY_CLIENT_SECRET = os.environ.get("f1469bb0f25d40959b903dd5618ea179")
 
 def get_spotify_token():
     url = "https://accounts.spotify.com/api/token"
