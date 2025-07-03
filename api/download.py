@@ -14,9 +14,10 @@ def download():
         return jsonify({'error': 'No Spotify URL provided'}), 400
 
     try:
-        # Get song info from Spotify oEmbed
+        # Extract Spotify info
         res = requests.get(f"https://open.spotify.com/oembed?url={spotify_url}")
         embed = res.json()
+
         title = embed.get("title", "Unknown")
         thumbnail = embed.get("thumbnail_url", "")
         artist = "Unknown"
@@ -29,6 +30,5 @@ def download():
             "artist": artist.strip(),
             "thumbnail": thumbnail
         })
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
